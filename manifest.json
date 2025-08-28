@@ -1,0 +1,22 @@
+{
+  "name": "Permissions Tracker",
+  "short_name": "Permissions",
+  "description": "Track and manage monthly early leave or late arrival permissions using the Hijri calendar.",
+  "start_url": ".",
+  "display": "standalone",
+  "scope": ".",
+  "background_color": "#fafafa",
+  "theme_color": "#006064",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

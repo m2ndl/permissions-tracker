@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Permissions Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1 id="app-title">Permissions Tracker</h1>
+  </header>
+
+  <main>
+    <!-- Home screen -->
+    <section id="home" class="view">
+      <h2 id="month-name"></h2>
+      <p id="workdays-info" class="muted"></p>
+
+      <div class="card">
+        <div class="counter">
+          <span id="used-count">0</span>/<span id="total-count">10</span>
+        </div>
+        <div class="progress-outer">
+          <div id="progress" class="progress-inner"></div>
+        </div>
+        <p id="permissions-remaining" class="muted"></p>
+        <div class="btn-row">
+          <button id="use-permission-late" class="btn">Use Late Arrival</button>
+          <button id="use-permission-early" class="btn btn-outline">Use Early Departure</button>
+          <button id="install-app-btn" class="primary-btn hidden">
+            Install App
+          </button>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- History screen -->
+    <section id="history" class="view hidden">
+      <h2>History</h2>
+      <div id="history-list" class="history-list"></div>
+    </section>
+
+    <!-- Settings screen -->
+    <section id="settings" class="view hidden">
+      <h2>Settings</h2>
+
+      <div class="setting-item">
+        <label for="language-select">Language</label>
+        <select id="language-select">
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <label for="weekend-select">Weekend Days</label>
+        <select id="weekend-select">
+          <option value="5,6">Friday & Saturday</option>
+          <option value="6,0">Saturday & Sunday</option>
+          <option value="4,5">Thursday & Friday</option>
+        </select>
+      </div>
+    </section>
+  </main>
+
+  <nav class="navbar">
+    <button id="nav-home" class="nav-btn active">Home</button>
+    <button id="nav-history" class="nav-btn">History</button>
+    <button id="nav-settings" class="nav-btn">Settings</button>
+  </nav>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>
