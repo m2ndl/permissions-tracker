@@ -1,40 +1,65 @@
-// Simple cache-first service worker for static assets
-const CACHE_NAME = 'perm-tracker-v3';
-const ASSETS = [
-  './',
-  './index.html',
-  './style.css',
-  './app.js',
-  './manifest.json',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png'
-];
+// Simplified service worker for personal PWA
+const CACHE_NAME = 'perm-tracker-v5';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+  // Force the waiting service worker to become the active service worker
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  // Claim all clients immediately
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.map(k => (k !== CACHE_NAME) ? caches.delete(k) : null)))
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
+  // Only handle GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // Skip chrome extension URLs and non-http(s) requests
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+  
   event.respondWith(
-    caches.match(req).then(cached => {
-      if (cached) return cached;
-      return fetch(req).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          if (res.ok) cache.put(req, copy);
+    caches.match(event.request)
+      .then(response => {
+        // Return cached version or fetch new version
+        if (response) {
+          return response;
+        }
+        
+        return fetch(event.request).then(response => {
+          // Don't cache non-successful responses
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
+          
+          // Clone the response
+          const responseToCache = response.clone();
+          
+          caches.open(CACHE_NAME).then(cache => {
+            // Cache the fetched response for future use
+            cache.put(event.request, responseToCache);
+          });
+          
+          return response;
         });
-        return res;
-      }).catch(() => caches.match('./index.html'));
-    })
+      })
+      .catch(() => {
+        // Offline fallback - return the index.html if available
+        return caches.match('./index.html');
+      })
   );
 });
