@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Permissions Tracker</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffffff">
-  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png">
-  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
-  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#006064">
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="style.css">
   <script defer src="app.js"></script>
 </head>
@@ -34,12 +32,12 @@
         <div class="btn-row">
           <button id="use-permission-late" class="btn">Use Late Arrival</button>
           <button id="use-permission-early" class="btn btn-outline">Use Early Departure</button>
-          <button id="install-app-btn" class="primary-btn hidden">
-            Install App
-          </button>
-
         </div>
       </div>
+      <!-- Install button moved outside the card -->
+      <button id="install-app-btn" class="btn hidden" style="margin-top: 20px; width: 100%; max-width: 520px;">
+        Install App
+      </button>
     </section>
 
     <!-- History screen -->
