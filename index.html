@@ -1,357 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Permissions Tracker</title>
-  
-  <!-- PWA Meta Tags -->
-  <link rel="manifest" href="data:application/json,{%22name%22:%22Permissions%20Tracker%22,%22short_name%22:%22Permissions%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23fafafa%22,%22theme_color%22:%22%23006064%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%253Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20192%20192'%253E%253Crect%20width='192'%20height='192'%20fill='%2523006064'/%253E%253Ctext%20x='96'%20y='96'%20font-family='system-ui'%20font-size='100'%20font-weight='bold'%20text-anchor='middle'%20dominant-baseline='central'%20fill='white'%253EP%253C/text%253E%253C/svg%253E%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]}">
-  <meta name="theme-color" content="#006064">
-  
-  <!-- iOS PWA Support -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Permissions">
-  
-  <style>
-    :root{
-      --c1:#006064;
-      --c2:#0097a7;
-      --c3:#00bfa5;
-      --bg:#fafafa;
-      --fg:#0f172a;
-      --muted:#64748b;
-      --border:#e5e7eb;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--fg);
-      font-family:system-ui,-apple-system,sans-serif;
-    }
-    .topbar{
-      background:var(--c1);
-      color:white;
-      padding:14px 16px;
-      position:sticky;
-      top:0;
-      z-index:5;
-    }
-    .topbar h1{margin:0;font-size:20px;letter-spacing:.3px}
-    main{padding:24px;max-width:860px;margin:0 auto}
-    h2{margin:12px 0 6px}
-    .muted{color:var(--muted)}
-    .card{
-      background:white;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:18px;
-      box-shadow:0 1px 8px rgba(2,8,23,.05);
-      max-width:520px;
-    }
-    .counter{
-      font-size:28px;
-      font-weight:700;
-      text-align:center;
-      margin:8px 0 6px;
-    }
-    .progress-outer{
-      height:8px;
-      background:#e2e8f0;
-      border-radius:999px;
-      overflow:hidden;
-    }
-    .progress-inner{
-      height:100%;
-      width:0;
-      background:var(--c3);
-      transition:width .3s ease;
-    }
-    .btn-row{
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      margin-top:12px;
-      flex-wrap:wrap;
-    }
-    .btn{
-      background:var(--c1);
-      color:#fff;
-      border:none;
-      border-radius:10px;
-      padding:10px 14px;
-      font-weight:600;
-      cursor:pointer;
-    }
-    .btn:hover{opacity:.95}
-    .btn-outline{
-      background:#eef7f8;
-      color:var(--c1);
-    }
-    .install-btn{
-      margin-top:20px;
-      width:100%;
-      max-width:520px;
-      background:linear-gradient(135deg, var(--c1), var(--c2));
-    }
-    .warning-box{
-      background:#fff3cd;
-      border:1px solid #ffc107;
-      color:#856404;
-      padding:12px;
-      border-radius:8px;
-      margin:20px 0;
-      max-width:520px;
-    }
-    .history-list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:10px;
-    }
-    .history-item{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      background:white;
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:10px 12px;
-    }
-    .setting-item{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      margin:10px 0;
-      max-width:520px;
-    }
-    select{
-      padding:8px;
-      border:1px solid var(--border);
-      border-radius:10px;
-      background:white;
-    }
-    .navbar{
-      position:sticky;
-      bottom:0;
-      background:white;
-      border-top:1px solid var(--border);
-      display:flex;
-      gap:2px;
-      padding:8px 8px;
-    }
-    .nav-btn{
-      flex:1;
-      background:transparent;
-      border:none;
-      padding:10px 8px;
-      border-radius:10px;
-      font-weight:600;
-      color:var(--muted);
-      cursor:pointer;
-    }
-    .nav-btn.active{
-      background:#e6fffb;
-      color:#065f5b;
-    }
-    .view{}
-    .hidden{display:none}
-  </style>
-  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAA7AAAAOwBeShxvQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAKoSURBVFiFtZe9bhNBEMd/u7sPx3aMQ0ICBQUFEh0lEi9AQUvDG9DyALQ8AC0tFQ0FBQ0UCIlPIQQhEJEQH7Fz57vbGYrz+Xy+8+Ukhl3pZHs/5v+f2Z3ZWUNVucy0XKYw4FIBGFVo8BCA67wB0GiCUQCjAEYBjAI0FMCqgoiwtbWFiKCqHA6HdQhYUwVQ1f/s0QdQFeA8e1SAMYCR7VEAxgAy5U6ns2DeaDTq8KkaAdBsNsnn86V2z/PqkKgHgIigqjiOw87OTqnd87w6JGoBUFV836fdbgOQTqcJw7AOiYkAxJ3v7u7i+z5ZlvH8/Mzz8zOqqgLwdD/hyD6Ds3ExIMnM4jhBL0iwtHt9vcTOHZoJQPTuRtpfQ+uPL1gD8tGOw3YO2+uPo4HaAKY5jwSGg6GVyxsLIMLh4WHp83w+n3meOBgDqAAYBTAK8C8B5hYhnZ4WFxtF1oVFZRY4nU7HOp/HLDDT8+8gAM8AEolE5QJkEkBCCJfXNrAGZAC/9/d5enxkY2uXlnGJstZsEA2tBVQqm0xfHQQBh4eHOE553XV8rCiE4zijzl0wWwL5RKKkBJaXl+sQmKkCYRjy8/v7eLdKAAzDcNbnATWbYS6Xo9VqISK0Wi38Xo9ut0snCOh0OqRSqYnn5PP5yrj5PBLRRJm9vT0+Pz+Jdnd3R4s3NzcXPifC1gCOAiB+P9/Z2cF1Xb6+vri7u+Pp6eliojUBFKdgtO33+wRBQK/X4/39nYeHh/MHawAoXrGqFhVQVb6/v3l5eeHu7o63t7fpQRoAULxiVaXdblN8cYrxSZIkcqRJkkRFCVosV8H5K4K0gxCEwNPDvQAEMWsQhChYrECr1SLLssKFxHGMiGCtRVUJw5BUT5qitm1bwzAE+APw9xJaAnoKowAAAABJRU5ErkJggg==">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Permissions Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Web App Manifest (now points to the standalone file) -->
+    <link rel="manifest" href="/manifest.json">
 </head>
-<body>
-  <header class="topbar">
-    <h1 id="app-title">Permissions Tracker</h1>
-  </header>
+<body class="min-h-screen flex flex-col">
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <nav class="container mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center sm:space-y-0 space-y-2">
+            <h1 class="text-2xl font-bold text-teal-700">Permissions</h1>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto items-center">
+                <button id="nav-home" class="py-2 px-4 text-gray-600 hover:text-teal-700 font-medium rounded-md transition-colors w-full sm:w-auto">Home</button>
+                <button id="nav-history" class="py-2 px-4 text-gray-600 hover:text-teal-700 font-medium rounded-md transition-colors w-full sm:w-auto">History</button>
+                <button id="nav-settings" class="py-2 px-4 text-gray-600 hover:text-teal-700 font-medium rounded-md transition-colors w-full sm:w-auto">Settings</button>
+            </div>
+        </nav>
+    </header>
 
-  <main>
-    <!-- Home screen -->
-    <section id="home" class="view">
-      <h2 id="month-name"></h2>
-      <p id="workdays-info" class="muted"></p>
+    <main class="container mx-auto p-4 flex-grow">
+        <!-- Home Screen -->
+        <section id="home-screen" class="space-y-6 bg-white p-6 rounded-lg shadow-md">
+            <div class="text-center">
+                <h2 id="current-hijri-month" class="text-3xl font-semibold text-teal-800 mb-2"></h2>
+                <p id="gregorian-month-details" class="text-gray-500 text-sm"></p>
+                <p id="workdays-count" class="text-gray-600 text-md"></p>
+            </div>
 
-      <div class="warning-box">
-        <strong>⚠️ Testing Mode</strong><br>
-        This app requires proper deployment to work as a PWA. To test:
-        <ol style="margin:5px 0;padding-left:20px">
-          <li>Save all files to a folder on your computer</li>
-          <li>Deploy to GitHub Pages, Netlify, or Vercel (all free)</li>
-          <li>Or test locally using a web server</li>
-        </ol>
-      </div>
+            <div class="text-center">
+                <p class="text-gray-600 text-lg">Permissions Used:</p>
+                <div class="flex items-baseline justify-center space-x-2">
+                    <span id="permissions-used" class="text-5xl font-extrabold text-teal-600">0</span>
+                    <span class="text-3xl font-semibold text-gray-400">/10</span>
+                </div>
+            </div>
 
-      <div class="card">
-        <div class="counter">
-          <span id="used-count">0</span>/<span id="total-count">10</span>
+            <div class="w-full bg-gray-200 rounded-full h-4 relative">
+                <div id="progress-bar" class="progress-bar bg-teal-gradient h-4 rounded-full" style="width: 0%;"></div>
+            </div>
+
+            <div class="text-center text-xl font-medium text-gray-700">
+                <span id="permissions-remaining">10</span> permissions remaining
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
+                <button id="use-late-arrival" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-colors text-lg">
+                    Use Late Arrival
+                </button>
+                <button id="use-early-departure" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-6 rounded-lg shadow-lg transition-colors text-lg">
+                    Use Early Departure
+                </button>
+            </div>
+        </section>
+
+        <!-- History Page -->
+        <section id="history-screen" class="hidden space-y-4 bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold text-teal-800 mb-4">Permission History (Current Hijri Month)</h2>
+            <ul id="history-list" class="divide-y divide-gray-200">
+                <li class="p-3 text-gray-500 text-center">No permissions used this month yet.</li>
+            </ul>
+        </section>
+
+        <!-- Settings Page -->
+        <section id="settings-screen" class="hidden space-y-6 bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold text-teal-800 mb-4">App Settings</h2>
+            <div>
+                <h3 class="text-xl font-medium text-gray-700 mb-2">App Status</h3>
+                <p id="app-status" class="text-gray-600">Checking...</p>
+            </div>
+            <div id="install-section" class="hidden">
+                <button id="install-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors text-lg">
+                    Install App
+                </button>
+                <p class="text-gray-500 text-sm mt-2">Add this app to your home screen for quick access and a full app experience!</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Confirmation Dialog -->
+    <div id="confirmation-dialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm">
+            <h3 class="text-xl font-semibold mb-4" id="dialog-title">Confirm Action</h3>
+            <p class="text-gray-700 mb-6" id="dialog-message">Are you sure you want to log this permission?</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancel-button" class="px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors">Cancel</button>
+                <button id="confirm-button" class="px-5 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors">Confirm</button>
+            </div>
         </div>
-        <div class="progress-outer">
-          <div id="progress" class="progress-inner"></div>
-        </div>
-        <p id="permissions-remaining" class="muted"></p>
-        <div class="btn-row">
-          <button id="use-permission-late" class="btn">Use Late Arrival</button>
-          <button id="use-permission-early" class="btn btn-outline">Use Early Departure</button>
-        </div>
-      </div>
-      
-      <button id="install-app-btn" class="btn install-btn hidden">
-        Install App
-      </button>
-    </section>
+    </div>
 
-    <!-- History screen -->
-    <section id="history" class="view hidden">
-      <h2>History</h2>
-      <div id="history-list" class="history-list"></div>
-    </section>
-
-    <!-- Settings screen -->
-    <section id="settings" class="view hidden">
-      <h2>Settings</h2>
-      <div class="setting-item">
-        <label for="language-select">Language</label>
-        <select id="language-select">
-          <option value="en">English</option>
-          <option value="ar">العربية</option>
-        </select>
-      </div>
-      <div class="setting-item">
-        <label for="weekend-select">Weekend Days</label>
-        <select id="weekend-select">
-          <option value="5,6">Friday & Saturday</option>
-          <option value="6,0">Saturday & Sunday</option>
-          <option value="4,5">Thursday & Friday</option>
-        </select>
-      </div>
-    </section>
-  </main>
-
-  <nav class="navbar">
-    <button id="nav-home" class="nav-btn active">Home</button>
-    <button id="nav-history" class="nav-btn">History</button>
-    <button id="nav-settings" class="nav-btn">Settings</button>
-  </nav>
-
-  <script>
-    // Complete app.js code inline for testing
-    (function() {
-      'use strict';
-
-      const hijriFormatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric'
-      });
-
-      function toHijri(date) {
-        const parts = hijriFormatter.formatToParts(date);
-        let day, month, year;
-        for (const part of parts) {
-          if (part.type === 'day') day = parseInt(part.value, 10);
-          if (part.type === 'month') month = parseInt(part.value, 10);
-          if (part.type === 'year') year = parseInt(part.value, 10);
-        }
-        return { year, month, day };
-      }
-
-      function findHijriMonthStart(gregDate) {
-        let date = new Date(gregDate);
-        let hijri = toHijri(date);
-        while (hijri.day > 1) {
-          date.setDate(date.getDate() - 1);
-          hijri = toHijri(date);
-        }
-        return date;
-      }
-
-      function findHijriMonthEnd(monthStart, hijriYear, hijriMonth) {
-        let date = new Date(monthStart);
-        let hijri;
-        while (true) {
-          const nextDay = new Date(date);
-          nextDay.setDate(date.getDate() + 1);
-          hijri = toHijri(nextDay);
-          if (hijri.year !== hijriYear || hijri.month !== hijriMonth) {
-            break;
-          }
-          date = nextDay;
-        }
-        return date;
-      }
-
-      const views = {
-        home: document.getElementById('home'),
-        history: document.getElementById('history'),
-        settings: document.getElementById('settings')
-      };
-      const navButtons = {
-        home: document.getElementById('nav-home'),
-        history: document.getElementById('nav-history'),
-        settings: document.getElementById('nav-settings')
-      };
-      const monthNameEl = document.getElementById('month-name');
-      const workdaysInfoEl = document.getElementById('workdays-info');
-      const usedCountEl = document.getElementById('used-count');
-      const totalCountEl = document.getElementById('total-count');
-      const progressBarEl = document.getElementById('progress');
-      const remainingEl = document.getElementById('permissions-remaining');
-      const btnLate = document.getElementById('use-permission-late');
-      const btnEarly = document.getElementById('use-permission-early');
-      const historyListEl = document.getElementById('history-list');
-      const languageSelect = document.getElementById('language-select');
-      const weekendSelect = document.getElementById('weekend-select');
-      const installAppBtn = document.getElementById('install-app-btn');
-      let deferredPrompt = null;
-
-      const TOTAL_PERMISSIONS = 10;
-
-      const translations = {
-        en: {
-          appTitle: 'Permissions Tracker',
-          home: 'Home',
-          history: 'History',
-          settings: 'Settings',
-          monthStarts: (weekday) => `Starts on ${weekday}`,
-          monthEnds: (weekday) => `Ends on ${weekday}`,
-          workdaysCount: (count) => `${count} workdays this month`,
-          remaining: (remaining) => `${remaining} permissions remaining`,
-          useLate: 'Use Late Arrival',
-          useEarly: 'Use Early Departure',
-          historyTitle: 'History',
-          historyNoItems: 'No permissions used this month.',
-          permissionLate: 'Late arrival',
-          permissionEarly: 'Early departure',
-          reachedLimit: 'You have used all your permissions for this month.',
-          confirmUse: (type) => `Use a permission for ${type}?`,
-          languageLabel: 'Language',
-          weekendLabel: 'Weekend Days',
-          installApp: 'Install App'
-        },
-        ar: {
-          appTitle: 'متتبع الأذونات',
-          home: 'الرئيسية',
-          history: 'السجل',
-          settings: 'الإعدادات',
-          monthStarts: (weekday) => `تبدأ في ${weekday}`,
-          monthEnds: (weekday) => `تنتهي في ${weekday}`,
-          workdaysCount: (count) => `${count} يوم عمل هذا الشهر`,
-          remaining: (remaining) => `متبقي ${remaining} إذن`,
-          useLate: 'استخدام إذن تأخير',
-          useEarly: 'استخدام إذن مبكر',
-          historyTitle: 'السجل',
-          historyNoItems: 'لا يوجد أذونات مستخدمة هذا الشهر.',
-          permissionLate: 'تأخير',
-          permissionEarly: 'خروج مبكر',
-          reachedLimit: 'لقد استخدمت جميع الأذونات لهذا الشهر.',
-          confirmUse: (type) => `هل تريد استخدام إذن لـ ${type}؟`,
-          languageLabel: 'اللغة',
-          weekendLabel: 'أيام العطلة',
-          installApp: 'تثبيت التطبيق'
-        }
-      };
-
-      const weekdayNames = {
-        en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        ar: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء',
+    <script src="script.js"></script>
+</body>
+</html>
